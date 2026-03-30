@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { generateApiKey, hashApiKey, getApiKeyPrefix } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const { allowed, retryAfter } = checkRateLimit(`register:${ip}`, RATE_LIMITS.register);
+    if (!allowed) {
+      const res = errorResponse(Errors.RATE_LIMITED(retryAfter));
+      res.headers.set("Retry-After", String(retryAfter));
+      return res;
+    }
+
     const body = await request.json();
     const { name, description } = body;
 
