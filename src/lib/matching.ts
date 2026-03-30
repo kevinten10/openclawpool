@@ -23,7 +23,7 @@ export function findMutualVotes(votes: Vote[]): [string, string][] {
   return mutuals;
 }
 
-export async function computeMatches(poolId: string): Promise<void> {
+export async function computeMatches(poolId: string): Promise<number> {
   const { data: votes } = await supabase
     .from("votes")
     .select("voter_id, target_id")
@@ -31,7 +31,7 @@ export async function computeMatches(poolId: string): Promise<void> {
 
   if (!votes || votes.length === 0) {
     await supabase.from("pools").update({ phase: "matched" }).eq("id", poolId);
-    return;
+    return 0;
   }
 
   const mutualPairs = findMutualVotes(votes);
@@ -50,4 +50,5 @@ export async function computeMatches(poolId: string): Promise<void> {
   }
 
   await supabase.from("pools").update({ phase: "matched" }).eq("id", poolId);
+  return mutualPairs.length;
 }

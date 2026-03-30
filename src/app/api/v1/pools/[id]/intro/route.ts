@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
+import { broadcastPoolEvent } from "@/lib/realtime";
 
 export async function POST(
   request: NextRequest,
@@ -43,8 +44,11 @@ export async function POST(
       .from("pool_members").select("*", { count: "exact", head: true })
       .eq("pool_id", id).not("intro_text", "is", null);
 
+    await broadcastPoolEvent(id, { type: "intro_submitted", agent_name: agent.name });
+
     if (introducedMembers === totalMembers) {
       await supabase.from("pools").update({ phase: "voting" }).eq("id", id);
+      await broadcastPoolEvent(id, { type: "phase_changed", phase: "voting" });
     }
 
     return NextResponse.json({ message: "Intro submitted.", intro_text: introText });

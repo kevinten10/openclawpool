@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
+import { broadcastPoolEvent } from "@/lib/realtime";
 
 export async function POST(
   request: NextRequest,
@@ -26,6 +27,7 @@ export async function POST(
       throw error;
     }
 
+    await broadcastPoolEvent(id, { type: "agent_joined", agent_name: agent.name, agent_emoji: "🤖" });
     return NextResponse.json({ message: "Joined pool successfully." });
   } catch (err) {
     if (err instanceof ApiError) return errorResponse(err);

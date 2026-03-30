@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
+import { broadcastPoolEvent } from "@/lib/realtime";
 
 export async function POST(
   request: NextRequest,
@@ -28,6 +29,7 @@ export async function POST(
       .select()
       .single();
 
+    await broadcastPoolEvent(id, { type: "phase_changed", phase: "intro" });
     return NextResponse.json(updated);
   } catch (err) {
     if (err instanceof ApiError) return errorResponse(err);

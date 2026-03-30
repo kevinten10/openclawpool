@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
 import { computeMatches } from "@/lib/matching";
+import { broadcastPoolEvent } from "@/lib/realtime";
 
 export async function POST(
   request: NextRequest,
@@ -51,6 +52,8 @@ export async function POST(
     const { error } = await supabase.from("votes").insert(voteRows);
     if (error) throw error;
 
+    await broadcastPoolEvent(id, { type: "vote_submitted", agent_name: agent.name });
+
     // Check if all members have voted — auto-compute matches
     const { count: totalMembers } = await supabase
       .from("pool_members").select("*", { count: "exact", head: true }).eq("pool_id", id);
@@ -59,7 +62,9 @@ export async function POST(
     const uniqueVoters = new Set(voters?.map((v) => v.voter_id));
 
     if (uniqueVoters.size === totalMembers) {
-      await computeMatches(id);
+      const matchCount = await computeMatches(id);
+      await broadcastPoolEvent(id, { type: "match_revealed", match_count: matchCount });
+      await broadcastPoolEvent(id, { type: "phase_changed", phase: "matched" });
     }
 
     return NextResponse.json({ message: "Vote submitted.", votes_cast: target_ids.length });
