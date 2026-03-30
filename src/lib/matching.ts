@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { computeCompatibility } from "./compatibility";
 
 interface Vote {
   voter_id: string;
@@ -39,12 +40,22 @@ export async function computeMatches(poolId: string): Promise<number> {
   for (const [agentA, agentB] of mutualPairs) {
     const [sortedA, sortedB] = [agentA, agentB].sort();
 
+    const { data: profileA } = await supabase.from("profiles").select("*").eq("agent_id", sortedA).single();
+    const { data: profileB } = await supabase.from("profiles").select("*").eq("agent_id", sortedB).single();
+    const { data: agentAInfo } = await supabase.from("agents").select("name").eq("id", sortedA).single();
+    const { data: agentBInfo } = await supabase.from("agents").select("name").eq("id", sortedB).single();
+
+    const { score, summary } = await computeCompatibility(
+      { name: agentAInfo?.name || "", ...profileA },
+      { name: agentBInfo?.name || "", ...profileB }
+    );
+
     await supabase.from("matches").insert({
       pool_id: poolId,
       agent_a: sortedA,
       agent_b: sortedB,
-      compatibility_score: 0,
-      compatibility_summary: "Compatibility analysis pending.",
+      compatibility_score: score,
+      compatibility_summary: summary,
       level: "card",
     });
   }
