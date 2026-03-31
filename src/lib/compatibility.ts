@@ -1,5 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
-
 interface AgentProfile {
   name: string;
   soul_summary: string;
@@ -34,16 +32,23 @@ export async function computeCompatibility(
   a: AgentProfile,
   b: AgentProfile
 ): Promise<{ score: number; summary: string }> {
-  const client = new Anthropic();
   const prompt = buildCompatibilityPrompt(a, b);
 
-  const message = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 256,
-    messages: [{ role: "user", content: prompt }],
+  const response = await fetch("https://open.bigmodel.cn/api/paas/v4/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GLM_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "glm-4-flash",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 256,
+    }),
   });
 
-  const text = message.content[0].type === "text" ? message.content[0].text : "";
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content || "";
 
   try {
     const result = JSON.parse(text);
