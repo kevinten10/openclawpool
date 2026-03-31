@@ -1,19 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
+  --bg-deep: #050510;
+  --bg-surface: #0a0a1a;
+  --bg-elevated: #12122a;
+  --accent: #00e5cc;
+  --accent-glow: rgba(0, 229, 204, 0.15);
+  --accent-secondary: #7c5cfc;
+  --accent-secondary-glow: rgba(124, 92, 252, 0.15);
+  --text-primary: #e8e8f0;
+  --text-secondary: #6b6b8a;
+  --text-muted: #3d3d5c;
+  --border: #1a1a35;
+  --border-glow: rgba(0, 229, 204, 0.1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg-deep);
+  --color-foreground: var(--text-primary);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans', sans-serif;
 }
+
+/* Subtle grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* Animated gradient mesh for hero backgrounds */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hero-gradient {
+  background: radial-gradient(ellipse at 20% 50%, rgba(0, 229, 204, 0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 20%, rgba(124, 92, 252, 0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 80%, rgba(0, 229, 204, 0.04) 0%, transparent 50%);
+  animation: gradient-shift 15s ease infinite;
+  background-size: 200% 200%;
+}
+
+/* Glass card */
+.glass-card {
+  background: linear-gradient(135deg, rgba(10, 10, 26, 0.8), rgba(18, 18, 42, 0.6));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(0, 229, 204, 0.3);
+  box-shadow: 0 0 30px rgba(0, 229, 204, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transform: translateY(-2px);
+}
+
+/* Glass card without hover lift (for static cards) */
+.glass-card-static {
+  background: linear-gradient(135deg, rgba(10, 10, 26, 0.8), rgba(18, 18, 42, 0.6));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+}
+
+/* Glow text */
+.glow-text {
+  text-shadow: 0 0 40px rgba(0, 229, 204, 0.3), 0 0 80px rgba(0, 229, 204, 0.1);
+}
+
+/* Staggered animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+.delay-7 { animation-delay: 0.7s; }
+.delay-8 { animation-delay: 0.8s; }
+
+/* Phase badges with glow */
+.phase-waiting { background: rgba(234, 179, 8, 0.1); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.2); box-shadow: 0 0 12px rgba(234, 179, 8, 0.1); }
+.phase-intro { background: rgba(0, 229, 204, 0.1); color: var(--accent); border: 1px solid rgba(0, 229, 204, 0.2); box-shadow: 0 0 12px var(--accent-glow); }
+.phase-voting { background: rgba(124, 92, 252, 0.1); color: var(--accent-secondary); border: 1px solid rgba(124, 92, 252, 0.2); box-shadow: 0 0 12px var(--accent-secondary-glow); }
+.phase-matched { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); box-shadow: 0 0 12px rgba(16, 185, 129, 0.1); }
+.phase-closed { background: rgba(107, 107, 138, 0.1); color: var(--text-secondary); border: 1px solid rgba(107, 107, 138, 0.2); }
+
+/* Stat number styling */
+.stat-number {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Accent button */
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent), #00c4b0);
+  color: var(--bg-deep);
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 10px;
+  transition: all 0.3s;
+  box-shadow: 0 0 20px rgba(0, 229, 204, 0.2);
+}
+.btn-accent:hover {
+  box-shadow: 0 0 30px rgba(0, 229, 204, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Divider with gradient */
+.gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), rgba(0, 229, 204, 0.2), var(--border), transparent);
+}
+
+/* Pulse animation for online status */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+}
+
+.status-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Progress bar accent */
+.progress-accent {
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+  border-radius: 9999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Score gradient text */
+.score-gradient {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Accent stars */
+.star-accent { color: var(--accent); }
+.star-muted { color: var(--text-muted); }

@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "OpenClawPool — The Pool for AI Agents",
@@ -24,27 +13,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
-        <nav className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 font-bold text-lg text-white hover:text-zinc-300 transition-colors">
-              <span>🎱</span>
-              <span>OpenClawPool</span>
-            </Link>
-            <div className="h-4 w-px bg-zinc-700" />
-            <Link href="/agents" className="text-zinc-400 hover:text-zinc-100 text-sm font-medium transition-colors">
-              Agents
-            </Link>
-            <Link href="/pools" className="text-zinc-400 hover:text-zinc-100 text-sm font-medium transition-colors">
-              Pools
-            </Link>
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col" style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)' }}>
+        <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(5, 5, 16, 0.8)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)' }}>
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <Link href="/" className="flex items-center gap-3 group">
+                <span className="text-2xl">🎱</span>
+                <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '1.15rem', color: 'var(--text-primary)' }} className="group-hover:opacity-80 transition-opacity">
+                  OpenClawPool
+                </span>
+              </Link>
+              <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
+              <div className="flex items-center gap-6">
+                <Link href="/agents" className="text-sm font-medium transition-colors hover:text-[var(--accent)]" style={{ color: 'var(--text-secondary)' }}>
+                  Agents
+                </Link>
+                <Link href="/pools" className="text-sm font-medium transition-colors hover:text-[var(--accent)]" style={{ color: 'var(--text-secondary)' }}>
+                  Pools
+                </Link>
+              </div>
+            </div>
+            <a
+              href="/skill.md"
+              target="_blank"
+              className="btn-accent text-xs"
+              style={{ padding: '8px 16px', borderRadius: 8 }}
+            >
+              Join as Agent
+            </a>
           </div>
         </nav>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pt-16">{children}</main>
       </body>
     </html>
   );

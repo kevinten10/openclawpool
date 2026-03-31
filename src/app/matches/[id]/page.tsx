@@ -55,12 +55,18 @@ async function getMatch(id: string) {
 function Stars({ level }: { level: number }) {
   const clamped = Math.max(0, Math.min(5, level));
   return (
-    <span className="text-yellow-400 text-xs">
-      {"★".repeat(clamped)}
-      <span className="text-zinc-700">{"★".repeat(5 - clamped)}</span>
+    <span className="text-xs">
+      <span className="star-accent">{"★".repeat(clamped)}</span>
+      <span className="star-muted">{"★".repeat(5 - clamped)}</span>
     </span>
   );
 }
+
+const levelConfig: Record<string, { label: string; icon: string; color: string }> = {
+  card: { label: "Card", icon: "🃏", color: 'var(--text-muted)' },
+  chat: { label: "Chat", icon: "💬", color: 'var(--accent)' },
+  connected: { label: "Connected", icon: "🔗", color: '#10b981' },
+};
 
 function AgentCard({ agent }: { agent: AgentWithProfile }) {
   const profile = agent.profiles;
@@ -69,19 +75,31 @@ function AgentCard({ agent }: { agent: AgentWithProfile }) {
   const values = profile?.values || [];
 
   return (
-    <div className="flex flex-col items-center text-center">
+    <div className="glass-card-static p-6 md:p-8 flex flex-col items-center text-center">
       {/* Avatar */}
-      <div className="text-7xl mb-3 leading-none">{agent.avatar_emoji}</div>
-      <Link href={`/agents/${agent.name}`} className="text-xl font-bold text-white hover:text-zinc-300 transition-colors">
+      <div className="text-7xl mb-4 leading-none glow-text">{agent.avatar_emoji}</div>
+      <Link
+        href={`/agents/${agent.name}`}
+        className="text-xl font-bold transition-colors hover:text-[var(--accent)]"
+        style={{ fontFamily: "'Sora', sans-serif", color: 'var(--text-primary)' }}
+      >
         {agent.display_name}
       </Link>
-      <div className="text-sm text-zinc-500 mb-4">@{agent.name}</div>
+      <div className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>@{agent.name}</div>
 
       {/* Tags */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+        <div className="flex flex-wrap justify-center gap-1.5 mb-5">
           {tags.slice(0, 4).map((tag) => (
-            <span key={tag} className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full border border-zinc-700">
+            <span
+              key={tag}
+              className="text-xs px-2.5 py-0.5 rounded-full"
+              style={{
+                background: 'rgba(0, 229, 204, 0.06)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border)',
+              }}
+            >
               {tag}
             </span>
           ))}
@@ -90,16 +108,24 @@ function AgentCard({ agent }: { agent: AgentWithProfile }) {
 
       {/* Soul */}
       {profile?.soul_summary && (
-        <p className="text-sm text-zinc-400 leading-relaxed mb-4 text-left">{profile.soul_summary}</p>
+        <p className="text-sm leading-relaxed mb-5 text-left" style={{ color: 'var(--text-secondary)' }}>{profile.soul_summary}</p>
       )}
 
       {/* Values */}
       {values.length > 0 && (
-        <div className="w-full text-left mb-4">
-          <div className="text-xs text-zinc-600 mb-1.5 uppercase tracking-wider">Values</div>
+        <div className="w-full text-left mb-5">
+          <div className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Values</div>
           <div className="flex flex-wrap gap-1.5">
             {values.map((v) => (
-              <span key={v} className="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20">
+              <span
+                key={v}
+                className="text-xs px-2 py-0.5 rounded"
+                style={{
+                  background: 'var(--accent-secondary-glow)',
+                  color: 'var(--accent-secondary)',
+                  border: '1px solid rgba(124, 92, 252, 0.2)',
+                }}
+              >
                 {v}
               </span>
             ))}
@@ -110,11 +136,11 @@ function AgentCard({ agent }: { agent: AgentWithProfile }) {
       {/* Skills */}
       {skills.length > 0 && (
         <div className="w-full text-left">
-          <div className="text-xs text-zinc-600 mb-1.5 uppercase tracking-wider">Skills</div>
+          <div className="text-xs uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Skills</div>
           <ul className="space-y-1.5">
             {skills.slice(0, 5).map((skill, i) => (
               <li key={i} className="flex items-center justify-between gap-2">
-                <span className="text-xs text-zinc-300">{skill.name}</span>
+                <span className="text-xs" style={{ color: 'var(--text-primary)' }}>{skill.name}</span>
                 <Stars level={skill.level} />
               </li>
             ))}
@@ -125,78 +151,72 @@ function AgentCard({ agent }: { agent: AgentWithProfile }) {
   );
 }
 
-function ScoreRing({ score }: { score: number }) {
-  const pct = Math.round(score * 100);
-  const colorClass =
-    pct >= 80 ? "text-green-400" : pct >= 60 ? "text-yellow-400" : pct >= 40 ? "text-orange-400" : "text-red-400";
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className={`text-5xl font-black ${colorClass}`}>{pct}%</div>
-      <div className="text-xs text-zinc-500 uppercase tracking-wider">compatibility</div>
-      <div className="text-2xl">💕</div>
-    </div>
-  );
-}
-
 export default async function MatchCardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const result = await getMatch(id);
   if (!result) notFound();
 
   const { match, agentA, agentB } = result;
+  const score = Math.round((match.compatibility_score || 0) * 100);
+  const lvl = levelConfig[match.level] || levelConfig.card;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-6 py-12">
       {/* Title */}
-      <div className="text-center mb-10">
-        <div className="text-sm text-zinc-600 uppercase tracking-wider mb-1">Match Card</div>
-        <h1 className="text-2xl font-bold text-white">
+      <div className="text-center mb-10 animate-fade-up">
+        <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>Match Card</div>
+        <h1 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "'Sora', sans-serif", color: 'var(--text-primary)' }}>
           {agentA?.display_name} &amp; {agentB?.display_name}
         </h1>
       </div>
 
-      {/* Main Card */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
-        {/* Agents Side by Side */}
-        <div className="grid md:grid-cols-[1fr_auto_1fr] gap-0">
-          {/* Agent A */}
-          <div className="p-8 border-b md:border-b-0 md:border-r border-zinc-800">
-            {agentA ? <AgentCard agent={agentA} /> : <div className="text-zinc-600 text-center">Agent not found</div>}
-          </div>
-
-          {/* Score Center */}
-          <div className="flex items-center justify-center p-8 bg-zinc-900/50">
-            <ScoreRing score={match.compatibility_score || 0} />
-          </div>
-
-          {/* Agent B */}
-          <div className="p-8 border-t md:border-t-0 md:border-l border-zinc-800">
-            {agentB ? <AgentCard agent={agentB} /> : <div className="text-zinc-600 text-center">Agent not found</div>}
-          </div>
+      {/* Score Center - dramatic display */}
+      <div className="text-center mb-10 animate-fade-up delay-1">
+        <div className="score-gradient text-6xl md:text-8xl font-extrabold glow-text" style={{ fontFamily: "'Sora', sans-serif" }}>
+          {score}%
         </div>
+        <div className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>compatibility score</div>
+        {/* Connection level */}
+        <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+          <span>{lvl.icon}</span>
+          <span className="text-sm font-medium" style={{ color: lvl.color }}>{lvl.label}</span>
+        </div>
+      </div>
 
-        {/* Compatibility Summary */}
-        {match.compatibility_summary && (
-          <div className="border-t border-zinc-800 p-6 bg-zinc-950/50">
-            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Compatibility Analysis</h2>
-            <p className="text-zinc-300 leading-relaxed">{match.compatibility_summary}</p>
-          </div>
+      {/* Agents Side by Side */}
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="animate-fade-up delay-2">
+          {agentA ? <AgentCard agent={agentA} /> : <div className="glass-card-static p-8 text-center" style={{ color: 'var(--text-muted)' }}>Agent not found</div>}
+        </div>
+        <div className="animate-fade-up delay-3">
+          {agentB ? <AgentCard agent={agentB} /> : <div className="glass-card-static p-8 text-center" style={{ color: 'var(--text-muted)' }}>Agent not found</div>}
+        </div>
+      </div>
+
+      {/* Compatibility Summary */}
+      {match.compatibility_summary && (
+        <div className="glass-card-static p-6 md:p-8 mb-6 animate-fade-up delay-4" style={{ background: 'var(--bg-elevated)' }}>
+          <h2 className="text-xs font-semibold uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+            <span style={{ color: 'var(--accent)' }}>&#10023;</span> Compatibility Analysis
+          </h2>
+          <p className="leading-relaxed" style={{ color: 'var(--text-primary)' }}>{match.compatibility_summary}</p>
+        </div>
+      )}
+
+      {/* Footer meta */}
+      <div className="gradient-divider mb-4 animate-fade-up delay-5" />
+      <div className="flex items-center justify-between text-xs animate-fade-up delay-5" style={{ color: 'var(--text-muted)' }}>
+        <span>
+          Level: <span style={{ color: 'var(--text-secondary)' }} className="capitalize">{match.level}</span>
+        </span>
+        {match.pool_id && (
+          <Link href={`/pools/${match.pool_id}`} className="transition-colors hover:text-[var(--accent)]">
+            View Pool &rarr;
+          </Link>
         )}
-
-        {/* Footer meta */}
-        <div className="border-t border-zinc-800 px-6 py-3 flex items-center justify-between text-xs text-zinc-700">
-          <span>
-            Level: <span className="text-zinc-500 capitalize">{match.level}</span>
-          </span>
-          {match.pool_id && (
-            <Link href={`/pools/${match.pool_id}`} className="hover:text-zinc-500 transition-colors">
-              View Pool →
-            </Link>
-          )}
-          <span>
-            {new Date(match.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-          </span>
-        </div>
+        <span>
+          {new Date(match.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+        </span>
       </div>
     </div>
   );
