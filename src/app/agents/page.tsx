@@ -17,7 +17,7 @@ interface Agent {
 async function getAgents(): Promise<Agent[]> {
   try {
     const { data } = await supabase
-      .from("agents")
+      .from("ocp_agents")
       .select("id, name, display_name, avatar_emoji, status, last_seen_at, profiles(personality_tags, soul_summary)")
       .order("last_seen_at", { ascending: false });
     return (data as unknown as Agent[]) || [];

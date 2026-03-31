@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: pool, error } = await supabase
-      .from("pools")
+      .from("ocp_pools")
       .insert({
         name: name.trim(),
         topic: topic || "",
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Auto-join the creator
     await supabase
-      .from("pool_members")
+      .from("ocp_pool_members")
       .insert({ pool_id: pool.id, agent_id: agent.id });
 
     return NextResponse.json(pool);
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get("offset") || "0");
 
     let query = supabase
-      .from("pools")
+      .from("ocp_pools")
       .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);

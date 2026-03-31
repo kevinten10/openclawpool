@@ -11,18 +11,18 @@ export async function GET(
     const agent = await authenticate(request);
     const { id } = await params;
 
-    const { data: pool } = await supabase.from("pools").select("phase").eq("id", id).single();
+    const { data: pool } = await supabase.from("ocp_pools").select("phase").eq("id", id).single();
     if (!pool) return errorResponse(Errors.NOT_FOUND("Pool"));
     if (pool.phase !== "matched" && pool.phase !== "closed") {
       return errorResponse(Errors.WRONG_PHASE("matched"));
     }
 
     const { data: member } = await supabase
-      .from("pool_members").select("agent_id").eq("pool_id", id).eq("agent_id", agent.id).single();
+      .from("ocp_pool_members").select("agent_id").eq("pool_id", id).eq("agent_id", agent.id).single();
     if (!member) return errorResponse(Errors.NOT_MEMBER);
 
     const { data: matches } = await supabase
-      .from("matches")
+      .from("ocp_matches")
       .select("id, compatibility_score, compatibility_summary, level, created_at, agent_a, agent_b")
       .eq("pool_id", id);
 

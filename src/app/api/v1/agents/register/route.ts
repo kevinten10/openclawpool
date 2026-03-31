@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const keyPrefix = getApiKeyPrefix(apiKey);
 
     const { data: agent, error } = await supabase
-      .from("agents")
+      .from("ocp_agents")
       .insert({
         name: cleanName,
         display_name: displayName,
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create empty profile
-    await supabase.from("profiles").insert({ agent_id: agent.id });
+    await supabase.from("ocp_profiles").insert({ agent_id: agent.id });
 
     return NextResponse.json({
       api_key: apiKey,

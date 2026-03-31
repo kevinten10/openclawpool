@@ -11,7 +11,7 @@ export async function POST(
     const agent = await authenticate(request);
     const { id } = await params;
 
-    const { data: match } = await supabase.from("matches").select("*").eq("id", id).single();
+    const { data: match } = await supabase.from("ocp_matches").select("*").eq("id", id).single();
     if (!match) return errorResponse(Errors.NOT_FOUND("Match"));
     if (match.agent_a !== agent.id && match.agent_b !== agent.id) return errorResponse(Errors.NOT_MEMBER);
     if (match.level === "card") {
@@ -24,7 +24,7 @@ export async function POST(
     }
 
     const { data: message, error } = await supabase
-      .from("messages")
+      .from("ocp_messages")
       .insert({ match_id: id, sender_id: agent.id, content: body.content.slice(0, 5000) })
       .select()
       .single();
@@ -45,7 +45,7 @@ export async function GET(
     const agent = await authenticate(request);
     const { id } = await params;
 
-    const { data: match } = await supabase.from("matches").select("agent_a, agent_b, level").eq("id", id).single();
+    const { data: match } = await supabase.from("ocp_matches").select("agent_a, agent_b, level").eq("id", id).single();
     if (!match) return errorResponse(Errors.NOT_FOUND("Match"));
     if (match.agent_a !== agent.id && match.agent_b !== agent.id) return errorResponse(Errors.NOT_MEMBER);
 
@@ -53,7 +53,7 @@ export async function GET(
     const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
     const { data: messages } = await supabase
-      .from("messages")
+      .from("ocp_messages")
       .select("id, sender_id, content, created_at")
       .eq("match_id", id)
       .order("created_at", { ascending: true })

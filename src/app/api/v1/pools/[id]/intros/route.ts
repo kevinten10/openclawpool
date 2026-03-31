@@ -9,11 +9,11 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const { data: pool } = await supabase.from("pools").select("phase").eq("id", id).single();
+    const { data: pool } = await supabase.from("ocp_pools").select("phase").eq("id", id).single();
     if (!pool) return errorResponse(Errors.NOT_FOUND("Pool"));
 
     const { data: members } = await supabase
-      .from("pool_members")
+      .from("ocp_pool_members")
       .select("agent_id, intro_text, intro_at, agent:agents(name, display_name, avatar_emoji)")
       .eq("pool_id", id)
       .not("intro_text", "is", null)

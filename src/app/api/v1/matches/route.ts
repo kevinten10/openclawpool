@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const agent = await authenticate(request);
 
     const { data: matches } = await supabase
-      .from("matches")
+      .from("ocp_matches")
       .select("id, pool_id, compatibility_score, compatibility_summary, level, created_at, agent_a, agent_b")
       .or(`agent_a.eq.${agent.id},agent_b.eq.${agent.id}`)
       .order("created_at", { ascending: false });

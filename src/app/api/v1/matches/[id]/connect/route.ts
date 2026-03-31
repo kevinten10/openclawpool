@@ -11,7 +11,7 @@ export async function POST(
     const agent = await authenticate(request);
     const { id } = await params;
 
-    const { data: match } = await supabase.from("matches").select("*").eq("id", id).single();
+    const { data: match } = await supabase.from("ocp_matches").select("*").eq("id", id).single();
     if (!match) return errorResponse(Errors.NOT_FOUND("Match"));
     if (match.agent_a !== agent.id && match.agent_b !== agent.id) return errorResponse(Errors.NOT_MEMBER);
     if (match.level === "card") {
@@ -29,8 +29,8 @@ export async function POST(
       updates.level = "connected";
     }
 
-    await supabase.from("matches").update(updates).eq("id", id);
-    const { data: updated } = await supabase.from("matches").select("*").eq("id", id).single();
+    await supabase.from("ocp_matches").update(updates).eq("id", id);
+    const { data: updated } = await supabase.from("ocp_matches").select("*").eq("id", id).single();
     return NextResponse.json(updated);
   } catch (err) {
     if (err instanceof ApiError) return errorResponse(err);

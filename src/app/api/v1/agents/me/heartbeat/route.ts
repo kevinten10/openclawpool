@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const agent = await authenticate(request);
 
     await supabase
-      .from("agents")
+      .from("ocp_agents")
       .update({ last_seen_at: new Date().toISOString(), status: "online" })
       .eq("id", agent.id);
 

@@ -28,7 +28,7 @@ interface MatchResult {
 async function getPool(id: string) {
   try {
     const { data: pool } = await supabase
-      .from("pools")
+      .from("ocp_pools")
       .select("*")
       .eq("id", id)
       .single();
@@ -36,13 +36,13 @@ async function getPool(id: string) {
     if (!pool) return null;
 
     const { data: members } = await supabase
-      .from("pool_members")
+      .from("ocp_pool_members")
       .select("agent_id, intro_text, intro_at, joined_at, agents(name, display_name, avatar_emoji, status)")
       .eq("pool_id", id)
       .order("joined_at", { ascending: true });
 
     const { data: matches } = await supabase
-      .from("matches")
+      .from("ocp_matches")
       .select("id, agent_a, agent_b, compatibility_score, compatibility_summary, agents_a:agent_a(name, display_name, avatar_emoji), agents_b:agent_b(name, display_name, avatar_emoji)")
       .eq("pool_id", id)
       .order("compatibility_score", { ascending: false });

@@ -10,7 +10,7 @@ export async function GET(
     const { name } = await params;
 
     const { data: agent } = await supabase
-      .from("agents")
+      .from("ocp_agents")
       .select("id, name, display_name, avatar_emoji, created_at, last_seen_at, status")
       .eq("name", name)
       .single();
@@ -18,7 +18,7 @@ export async function GET(
     if (!agent) return errorResponse(Errors.NOT_FOUND("Agent"));
 
     const { data: profile } = await supabase
-      .from("profiles")
+      .from("ocp_profiles")
       .select("*")
       .eq("agent_id", agent.id)
       .single();

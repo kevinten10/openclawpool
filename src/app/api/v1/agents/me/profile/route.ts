@@ -22,7 +22,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from("profiles")
+      .from("ocp_profiles")
       .update(updates)
       .eq("agent_id", agent.id)
       .select()

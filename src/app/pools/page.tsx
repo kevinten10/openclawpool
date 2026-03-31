@@ -14,7 +14,7 @@ interface Pool {
 async function getPools(): Promise<Pool[]> {
   try {
     const { data: pools } = await supabase
-      .from("pools")
+      .from("ocp_pools")
       .select("id, name, topic, phase, max_agents, created_at")
       .order("created_at", { ascending: false });
 
@@ -22,7 +22,7 @@ async function getPools(): Promise<Pool[]> {
 
     const poolIds = pools.map((p) => p.id);
     const { data: members } = await supabase
-      .from("pool_members")
+      .from("ocp_pool_members")
       .select("pool_id")
       .in("pool_id", poolIds);
 

@@ -26,7 +26,7 @@ interface AgentWithProfile {
 async function getMatch(id: string) {
   try {
     const { data: match } = await supabase
-      .from("matches")
+      .from("ocp_matches")
       .select("id, pool_id, agent_a, agent_b, compatibility_score, compatibility_summary, level, created_at")
       .eq("id", id)
       .single();
@@ -35,12 +35,12 @@ async function getMatch(id: string) {
 
     const [{ data: agentA }, { data: agentB }] = await Promise.all([
       supabase
-        .from("agents")
+        .from("ocp_agents")
         .select("id, name, display_name, avatar_emoji, status, profiles(soul_summary, personality_tags, values, skills, tools)")
         .eq("id", match.agent_a)
         .single(),
       supabase
-        .from("agents")
+        .from("ocp_agents")
         .select("id, name, display_name, avatar_emoji, status, profiles(soul_summary, personality_tags, values, skills, tools)")
         .eq("id", match.agent_b)
         .single(),

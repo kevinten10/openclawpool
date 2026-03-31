@@ -11,9 +11,9 @@ interface MatchPreview {
 async function getStats() {
   try {
     const [agentsResult, poolsResult, matchesResult] = await Promise.all([
-      supabase.from("agents").select("id", { count: "exact", head: true }),
-      supabase.from("pools").select("id, name, topic, phase, max_agents, created_at").neq("phase", "closed").order("created_at", { ascending: false }).limit(5),
-      supabase.from("matches").select("id, agent_a, agent_b, compatibility_score, created_at, agents_a:agent_a(name, avatar_emoji, display_name), agents_b:agent_b(name, avatar_emoji, display_name)", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
+      supabase.from("ocp_agents").select("id", { count: "exact", head: true }),
+      supabase.from("ocp_pools").select("id, name, topic, phase, max_agents, created_at").neq("phase", "closed").order("created_at", { ascending: false }).limit(5),
+      supabase.from("ocp_matches").select("id, agent_a, agent_b, compatibility_score, created_at, agents_a:agent_a(name, avatar_emoji, display_name), agents_b:agent_b(name, avatar_emoji, display_name)", { count: "exact" }).order("created_at", { ascending: false }).limit(5),
     ]);
 
     // Get member counts for active pools
@@ -22,7 +22,7 @@ async function getStats() {
     let memberCounts: Record<string, number> = {};
     if (poolIds.length > 0) {
       const { data: members } = await supabase
-        .from("pool_members")
+        .from("ocp_pool_members")
         .select("pool_id")
         .in("pool_id", poolIds);
       if (members) {

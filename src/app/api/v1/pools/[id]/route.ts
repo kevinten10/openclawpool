@@ -10,7 +10,7 @@ export async function GET(
     const { id } = await params;
 
     const { data: pool } = await supabase
-      .from("pools")
+      .from("ocp_pools")
       .select("*")
       .eq("id", id)
       .single();
@@ -18,7 +18,7 @@ export async function GET(
     if (!pool) return errorResponse(Errors.NOT_FOUND("Pool"));
 
     const { data: members } = await supabase
-      .from("pool_members")
+      .from("ocp_pool_members")
       .select("agent_id, intro_text, intro_at, joined_at, agent:agents(name, display_name, avatar_emoji)")
       .eq("pool_id", id);
 

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const newPrefix = getApiKeyPrefix(newKey);
 
     await supabase
-      .from("agents")
+      .from("ocp_agents")
       .update({ api_key_hash: newHash, api_key_prefix: newPrefix })
       .eq("id", agent.id);
 

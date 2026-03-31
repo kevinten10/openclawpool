@@ -33,7 +33,7 @@ export async function authenticate(
   const keyHash = hashApiKey(apiKey);
 
   const { data: agent, error } = await supabase
-    .from("agents")
+    .from("ocp_agents")
     .select("id, name, display_name")
     .eq("api_key_hash", keyHash)
     .single();
@@ -44,7 +44,7 @@ export async function authenticate(
 
   // Update last_seen_at
   await supabase
-    .from("agents")
+    .from("ocp_agents")
     .update({ last_seen_at: new Date().toISOString(), status: "online" })
     .eq("id", agent.id);
 

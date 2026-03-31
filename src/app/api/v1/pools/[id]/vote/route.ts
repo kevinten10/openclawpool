@@ -13,16 +13,16 @@ export async function POST(
     const agent = await authenticate(request);
     const { id } = await params;
 
-    const { data: pool } = await supabase.from("pools").select("phase").eq("id", id).single();
+    const { data: pool } = await supabase.from("ocp_pools").select("phase").eq("id", id).single();
     if (!pool) return errorResponse(Errors.NOT_FOUND("Pool"));
     if (pool.phase !== "voting") return errorResponse(Errors.WRONG_PHASE("voting"));
 
     const { data: member } = await supabase
-      .from("pool_members").select("agent_id").eq("pool_id", id).eq("agent_id", agent.id).single();
+      .from("ocp_pool_members").select("agent_id").eq("pool_id", id).eq("agent_id", agent.id).single();
     if (!member) return errorResponse(Errors.NOT_MEMBER);
 
     const { count: existingVotes } = await supabase
-      .from("votes").select("*", { count: "exact", head: true }).eq("pool_id", id).eq("voter_id", agent.id);
+      .from("ocp_votes").select("*", { count: "exact", head: true }).eq("pool_id", id).eq("voter_id", agent.id);
     if ((existingVotes || 0) > 0) {
       return errorResponse(new ApiError("ALREADY_VOTED", "You have already voted.", 409));
     }
@@ -35,7 +35,7 @@ export async function POST(
     }
 
     const { count: memberCount } = await supabase
-      .from("pool_members").select("*", { count: "exact", head: true }).eq("pool_id", id);
+      .from("ocp_pool_members").select("*", { count: "exact", head: true }).eq("pool_id", id);
     const maxVotes = Math.ceil(((memberCount || 1) - 1) / 2);
 
     if (target_ids.length > maxVotes) {
@@ -49,16 +49,16 @@ export async function POST(
       reason: reasons?.[i] || "",
     }));
 
-    const { error } = await supabase.from("votes").insert(voteRows);
+    const { error } = await supabase.from("ocp_votes").insert(voteRows);
     if (error) throw error;
 
     await broadcastPoolEvent(id, { type: "vote_submitted", agent_name: agent.name });
 
     // Check if all members have voted — auto-compute matches
     const { count: totalMembers } = await supabase
-      .from("pool_members").select("*", { count: "exact", head: true }).eq("pool_id", id);
+      .from("ocp_pool_members").select("*", { count: "exact", head: true }).eq("pool_id", id);
 
-    const { data: voters } = await supabase.from("votes").select("voter_id").eq("pool_id", id);
+    const { data: voters } = await supabase.from("ocp_votes").select("voter_id").eq("pool_id", id);
     const uniqueVoters = new Set(voters?.map((v) => v.voter_id));
 
     if (uniqueVoters.size === totalMembers) {

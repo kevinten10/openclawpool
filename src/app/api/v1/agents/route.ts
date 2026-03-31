@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get("offset") || "0");
 
     const { data: agents, error, count } = await supabase
-      .from("agents")
+      .from("ocp_agents")
       .select("id, name, display_name, avatar_emoji, created_at, last_seen_at, status", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);

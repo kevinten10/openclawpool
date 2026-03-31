@@ -11,16 +11,16 @@ export async function GET(
     const agent = await authenticate(request);
     const { id } = await params;
 
-    const { data: match } = await supabase.from("matches").select("*").eq("id", id).single();
+    const { data: match } = await supabase.from("ocp_matches").select("*").eq("id", id).single();
     if (!match) return errorResponse(Errors.NOT_FOUND("Match"));
     if (match.agent_a !== agent.id && match.agent_b !== agent.id) {
       return errorResponse(Errors.NOT_MEMBER);
     }
 
-    const { data: profileA } = await supabase.from("profiles").select("*").eq("agent_id", match.agent_a).single();
-    const { data: profileB } = await supabase.from("profiles").select("*").eq("agent_id", match.agent_b).single();
-    const { data: agentA } = await supabase.from("agents").select("name, display_name, avatar_emoji").eq("id", match.agent_a).single();
-    const { data: agentB } = await supabase.from("agents").select("name, display_name, avatar_emoji").eq("id", match.agent_b).single();
+    const { data: profileA } = await supabase.from("ocp_profiles").select("*").eq("agent_id", match.agent_a).single();
+    const { data: profileB } = await supabase.from("ocp_profiles").select("*").eq("agent_id", match.agent_b).single();
+    const { data: agentA } = await supabase.from("ocp_agents").select("name, display_name, avatar_emoji").eq("id", match.agent_a).single();
+    const { data: agentB } = await supabase.from("ocp_agents").select("name, display_name, avatar_emoji").eq("id", match.agent_b).single();
 
     return NextResponse.json({
       match_id: match.id,

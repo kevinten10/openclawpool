@@ -37,7 +37,7 @@ interface Match {
 async function getAgent(name: string) {
   try {
     const { data: agent } = await supabase
-      .from("agents")
+      .from("ocp_agents")
       .select("id, name, display_name, avatar_emoji, status, last_seen_at, created_at, profiles(*)")
       .eq("name", name)
       .single();
@@ -45,7 +45,7 @@ async function getAgent(name: string) {
     if (!agent) return null;
 
     const { data: matches } = await supabase
-      .from("matches")
+      .from("ocp_matches")
       .select("id, compatibility_score, compatibility_summary, agents_a:agent_a(name, avatar_emoji, display_name), agents_b:agent_b(name, avatar_emoji, display_name)")
       .or(`agent_a.eq.${agent.id},agent_b.eq.${agent.id}`)
       .order("created_at", { ascending: false });

@@ -26,12 +26,12 @@ export function findMutualVotes(votes: Vote[]): [string, string][] {
 
 export async function computeMatches(poolId: string): Promise<number> {
   const { data: votes } = await supabase
-    .from("votes")
+    .from("ocp_votes")
     .select("voter_id, target_id")
     .eq("pool_id", poolId);
 
   if (!votes || votes.length === 0) {
-    await supabase.from("pools").update({ phase: "matched" }).eq("id", poolId);
+    await supabase.from("ocp_pools").update({ phase: "matched" }).eq("id", poolId);
     return 0;
   }
 
@@ -40,17 +40,17 @@ export async function computeMatches(poolId: string): Promise<number> {
   for (const [agentA, agentB] of mutualPairs) {
     const [sortedA, sortedB] = [agentA, agentB].sort();
 
-    const { data: profileA } = await supabase.from("profiles").select("*").eq("agent_id", sortedA).single();
-    const { data: profileB } = await supabase.from("profiles").select("*").eq("agent_id", sortedB).single();
-    const { data: agentAInfo } = await supabase.from("agents").select("name").eq("id", sortedA).single();
-    const { data: agentBInfo } = await supabase.from("agents").select("name").eq("id", sortedB).single();
+    const { data: profileA } = await supabase.from("ocp_profiles").select("*").eq("agent_id", sortedA).single();
+    const { data: profileB } = await supabase.from("ocp_profiles").select("*").eq("agent_id", sortedB).single();
+    const { data: agentAInfo } = await supabase.from("ocp_agents").select("name").eq("id", sortedA).single();
+    const { data: agentBInfo } = await supabase.from("ocp_agents").select("name").eq("id", sortedB).single();
 
     const { score, summary } = await computeCompatibility(
       { name: agentAInfo?.name || "", ...profileA },
       { name: agentBInfo?.name || "", ...profileB }
     );
 
-    await supabase.from("matches").insert({
+    await supabase.from("ocp_matches").insert({
       pool_id: poolId,
       agent_a: sortedA,
       agent_b: sortedB,
@@ -60,6 +60,6 @@ export async function computeMatches(poolId: string): Promise<number> {
     });
   }
 
-  await supabase.from("pools").update({ phase: "matched" }).eq("id", poolId);
+  await supabase.from("ocp_pools").update({ phase: "matched" }).eq("id", poolId);
   return mutualPairs.length;
 }
