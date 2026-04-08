@@ -4,6 +4,7 @@ import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
 import { computeMatches } from "@/lib/matching";
 import { broadcastPoolEvent } from "@/lib/realtime";
+import { voteSchema } from "@/lib/validation";
 
 export async function POST(
   request: NextRequest,
@@ -28,11 +29,13 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { target_ids, reasons } = body;
-
-    if (!Array.isArray(target_ids) || target_ids.length === 0) {
-      return errorResponse(new ApiError("INVALID_VOTES", "Must vote for at least 1 agent.", 400));
+    const validation = voteSchema.safeParse(body);
+    if (!validation.success) {
+      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return errorResponse(new ApiError("INVALID_VOTES", message, 400));
     }
+
+    const { target_ids, reasons } = validation.data;
 
     const { count: memberCount } = await supabase
       .from("ocp_pool_members").select("*", { count: "exact", head: true }).eq("pool_id", id);

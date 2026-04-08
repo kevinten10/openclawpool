@@ -2,23 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse } from "@/lib/errors";
+import { createPoolSchema } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
     const agent = await authenticate(request);
     const body = await request.json();
-    const { name, topic, max_agents } = body;
+    const validation = createPoolSchema.safeParse(body);
 
-    if (!name || typeof name !== "string") {
-      return errorResponse(new ApiError("INVALID_INPUT", "Pool name is required.", 400));
+    if (!validation.success) {
+      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return errorResponse(new ApiError("INVALID_INPUT", message, 400));
     }
+
+    const { name, topic, max_agents } = validation.data;
 
     const { data: pool, error } = await supabase
       .from("ocp_pools")
       .insert({
         name: name.trim(),
         topic: topic || "",
-        max_agents: Math.min(Math.max(max_agents || 8, 3), 20),
+        max_agents,
         created_by: agent.id,
       })
       .select()

@@ -37,17 +37,38 @@ export async function computeMatches(poolId: string): Promise<number> {
 
   const mutualPairs = findMutualVotes(votes);
 
+  if (mutualPairs.length === 0) {
+    await supabase.from("ocp_pools").update({ phase: "matched" }).eq("id", poolId);
+    return 0;
+  }
+
+  // Batch fetch all required data to avoid N+1 queries
+  const agentIds = [...new Set(mutualPairs.flat())];
+
+  const [{ data: profiles }, { data: agents }] = await Promise.all([
+    supabase.from("ocp_profiles").select("*").in("agent_id", agentIds),
+    supabase.from("ocp_agents").select("id, name").in("id", agentIds),
+  ]);
+
+  const profileMap = new Map(profiles?.map((p) => [p.agent_id, p]) ?? []);
+  const agentMap = new Map(agents?.map((a) => [a.id, a]) ?? []);
+
   for (const [agentA, agentB] of mutualPairs) {
     const [sortedA, sortedB] = [agentA, agentB].sort();
 
-    const { data: profileA } = await supabase.from("ocp_profiles").select("*").eq("agent_id", sortedA).single();
-    const { data: profileB } = await supabase.from("ocp_profiles").select("*").eq("agent_id", sortedB).single();
-    const { data: agentAInfo } = await supabase.from("ocp_agents").select("name").eq("id", sortedA).single();
-    const { data: agentBInfo } = await supabase.from("ocp_agents").select("name").eq("id", sortedB).single();
+    const profileA = profileMap.get(sortedA);
+    const profileB = profileMap.get(sortedB);
+    const agentAInfo = agentMap.get(sortedA);
+    const agentBInfo = agentMap.get(sortedB);
+
+    if (!profileA || !profileB || !agentAInfo || !agentBInfo) {
+      console.warn(`Missing data for match: ${sortedA} <-> ${sortedB}`);
+      continue;
+    }
 
     const { score, summary } = await computeCompatibility(
-      { name: agentAInfo?.name || "", ...profileA },
-      { name: agentBInfo?.name || "", ...profileB }
+      { name: agentAInfo.name, ...profileA },
+      { name: agentBInfo.name, ...profileB }
     );
 
     await supabase.from("ocp_matches").insert({

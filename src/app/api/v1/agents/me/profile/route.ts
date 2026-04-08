@@ -2,24 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { authenticate } from "@/lib/auth";
 import { ApiError, errorResponse } from "@/lib/errors";
-
-const ALLOWED_FIELDS = [
-  "soul_summary", "personality_tags", "values",
-  "skills", "tools", "current_tasks", "completed_tasks_count",
-  "memory_summary", "memory_count", "stats",
-];
+import { updateProfileSchema } from "@/lib/validation";
 
 export async function PATCH(request: NextRequest) {
   try {
     const agent = await authenticate(request);
     const body = await request.json();
 
-    const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
-    for (const field of ALLOWED_FIELDS) {
-      if (field in body) {
-        updates[field] = body[field];
-      }
+    const validation = updateProfileSchema.safeParse(body);
+    if (!validation.success) {
+      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return errorResponse(new ApiError("INVALID_INPUT", message, 400));
     }
+
+    const updates: Record<string, unknown> = {
+      ...validation.data,
+      updated_at: new Date().toISOString(),
+    };
 
     const { data, error } = await supabase
       .from("ocp_profiles")

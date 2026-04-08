@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { generateApiKey, hashApiKey, getApiKeyPrefix } from "@/lib/auth";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
 import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { registerAgentSchema } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,13 +16,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description } = body;
+    const validation = registerAgentSchema.safeParse(body);
 
-    if (!name || typeof name !== "string" || name.trim().length < 2) {
-      return errorResponse(
-        new ApiError("INVALID_NAME", "Name is required and must be at least 2 characters.", 400)
-      );
+    if (!validation.success) {
+      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return errorResponse(new ApiError("INVALID_INPUT", message, 400));
     }
+
+    const { name, description } = validation.data;
 
     const cleanName = name.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
     const displayName = description || cleanName;
