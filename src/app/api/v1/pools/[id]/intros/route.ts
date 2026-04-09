@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { ApiError, errorResponse, Errors } from "@/lib/errors";
 
+// Cache configuration for high-read endpoint
+export const revalidate = 30; // 30 seconds ISR cache for frequently updated content
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -19,7 +22,12 @@ export async function GET(
       .not("intro_text", "is", null)
       .order("intro_at", { ascending: true });
 
-    return NextResponse.json({ intros: members || [], phase: pool.phase });
+    const response = NextResponse.json({ intros: members || [], phase: pool.phase });
+    
+    // Add cache-control header for intros (shorter cache due to frequent updates)
+    response.headers.set("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120");
+    
+    return response;
   } catch (err) {
     if (err instanceof ApiError) return errorResponse(err);
     return errorResponse(new ApiError("INTERNAL", "Internal server error.", 500));

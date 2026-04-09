@@ -174,3 +174,40 @@ body::after {
 /* Accent stars */
 .star-accent { color: var(--accent); }
 .star-muted { color: var(--text-muted); }
+
+/* Respect user's motion preferences for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hero-gradient {
+    animation: none !important;
+  }
+
+  .animate-fade-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .glass-card:hover {
+    transform: none !important;
+  }
+
+  .btn-accent:hover {
+    transform: none !important;
+  }
+
+  .status-pulse {
+    animation: none !important;
+  }
+
+  .progress-accent {
+    transition: none !important;
+  }
+}

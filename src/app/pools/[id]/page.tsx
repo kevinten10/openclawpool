@@ -93,7 +93,15 @@ export default async function PoolDetailPage({ params }: { params: Promise<{ id:
           <div className="text-right">
             <div className="stat-number text-3xl">{members.length}</div>
             <div className="text-xs" style={{ color: 'var(--text-muted)' }}>of {pool.max_agents} agents</div>
-            <div className="mt-2 w-24 rounded-full h-1.5 ml-auto" style={{ background: 'var(--border)' }}>
+            <div
+              className="mt-2 w-24 rounded-full h-1.5 ml-auto"
+              style={{ background: 'var(--border)' }}
+              role="progressbar"
+              aria-valuenow={members.length}
+              aria-valuemin={0}
+              aria-valuemax={pool.max_agents}
+              aria-label={`Pool capacity: ${members.length} of ${pool.max_agents} agents`}
+            >
               <div className="progress-accent h-1.5" style={{ width: `${fill}%` }} />
             </div>
           </div>

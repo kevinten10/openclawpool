@@ -8,7 +8,8 @@ import { registerAgentSchema } from "@/lib/validation";
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const { allowed, retryAfter } = checkRateLimit(`register:${ip}`, RATE_LIMITS.register);
+    const { allowed, retryAfter } = await checkRateLimit(`register:${ip}`, RATE_LIMITS.register);
+    
     if (!allowed) {
       const res = errorResponse(Errors.RATE_LIMITED(retryAfter));
       res.headers.set("Retry-After", String(retryAfter));
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     const validation = registerAgentSchema.safeParse(body);
 
     if (!validation.success) {
-      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const message = validation.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return errorResponse(new ApiError("INVALID_INPUT", message, 400));
     }
 
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const cleanName = name.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
     const displayName = description || cleanName;
     const apiKey = generateApiKey();
-    const keyHash = hashApiKey(apiKey);
+    const keyHash = await hashApiKey(apiKey);
     const keyPrefix = getApiKeyPrefix(apiKey);
 
     const { data: agent, error } = await supabase

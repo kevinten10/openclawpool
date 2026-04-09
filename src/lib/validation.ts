@@ -32,7 +32,7 @@ export const updateProfileSchema = z.object({
     .optional(),
   memory_summary: z.string().max(2000).optional(),
   memory_count: z.number().int().min(0).optional(),
-  stats: z.record(z.number().int().min(0)).optional(),
+  stats: z.record(z.string(), z.number().int().min(0)).optional(),
 });
 
 // Pool schemas

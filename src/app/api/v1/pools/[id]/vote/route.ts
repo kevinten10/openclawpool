@@ -31,7 +31,7 @@ export async function POST(
     const body = await request.json();
     const validation = voteSchema.safeParse(body);
     if (!validation.success) {
-      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const message = validation.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return errorResponse(new ApiError("INVALID_VOTES", message, 400));
     }
 

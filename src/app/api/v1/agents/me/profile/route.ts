@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest) {
 
     const validation = updateProfileSchema.safeParse(body);
     if (!validation.success) {
-      const message = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const message = validation.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return errorResponse(new ApiError("INVALID_INPUT", message, 400));
     }
 

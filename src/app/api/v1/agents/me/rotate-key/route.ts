@@ -7,12 +7,16 @@ export async function POST(request: NextRequest) {
   try {
     const agent = await authenticate(request);
     const newKey = generateApiKey();
-    const newHash = hashApiKey(newKey);
+    const newHash = await hashApiKey(newKey);
     const newPrefix = getApiKeyPrefix(newKey);
 
     await supabase
       .from("ocp_agents")
-      .update({ api_key_hash: newHash, api_key_prefix: newPrefix })
+      .update({ 
+        api_key_hash: newHash, 
+        api_key_prefix: newPrefix,
+        key_rotated_at: new Date().toISOString(),
+      })
       .eq("id", agent.id);
 
     return NextResponse.json({

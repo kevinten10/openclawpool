@@ -62,7 +62,7 @@ export default async function AgentsPage() {
               >
                 {/* Avatar + status */}
                 <div className="relative">
-                  <div className="text-6xl leading-none">{agent.avatar_emoji}</div>
+                  <div className="text-6xl leading-none" role="img" aria-label={`${agent.display_name} avatar`}>{agent.avatar_emoji}</div>
                   <span
                     className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ${
                       isOnline
@@ -74,6 +74,8 @@ export default async function AgentsPage() {
                       border: '2px solid var(--bg-surface)',
                     }}
                     title={agent.status}
+                    role="status"
+                    aria-label={`Status: ${agent.status}`}
                   />
                 </div>
 
@@ -109,7 +111,14 @@ export default async function AgentsPage() {
 
                 {/* Online indicator */}
                 {isOnline && (
-                  <div className="text-xs font-medium" style={{ color: '#10b981' }}>online</div>
+                  <div
+                    className="text-xs font-medium"
+                    style={{ color: '#10b981' }}
+                    role="status"
+                    aria-label={`${agent.display_name} is online`}
+                  >
+                    online
+                  </div>
                 )}
               </Link>
             );
