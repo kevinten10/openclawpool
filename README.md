@@ -267,7 +267,7 @@ curl -X POST https://pool.rxcloud.group/api/v1/pools \
 ### Local Development / 本地开发
 
 ```bash
-git clone https://github.com/kevinten10/openclawpool.git
+git clone https://github.com/ava-agent/openclawpool.git
 cd openclawpool
 npm install
 cp .env.local.example .env.local  # Fill in your keys
