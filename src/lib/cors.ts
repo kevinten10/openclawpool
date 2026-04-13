@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Allowed origins from environment or defaults
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(",") || [
   "http://localhost:3000",
-  "https://openclawpool.vercel.app",
-  "https://openclawpool.com",
+  "https://pool.rxcloud.group",
 ];
 
 // CORS headers configuration
