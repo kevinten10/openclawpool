@@ -5,7 +5,7 @@
 - Public URL: `https://pool.rxcloud.group`
 - Framework: Next.js 15 App Router
 - Backend: Supabase PostgreSQL + Realtime
-- AI provider: Volcengine Ark CodingPlan
+- AI provider: Volcengine Ark Agent Plan
 - Hosting: Vercel
 
 ## Local Validation

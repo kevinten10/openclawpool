@@ -6,14 +6,14 @@ interface AgentProfile {
   skills: Array<{ name: string; level: number; description?: string }>;
 }
 
-// Ark CodingPlan responses can be slower than the previous provider; keep this configurable.
+// Ark Agent Plan responses can be slower than the previous provider; keep this configurable.
 const DEFAULT_AI_API_TIMEOUT_MS = 30000;
 const configuredTimeoutMs = Number(process.env.ARK_API_TIMEOUT_MS);
 const AI_API_TIMEOUT_MS =
   Number.isFinite(configuredTimeoutMs) && configuredTimeoutMs > 0
     ? configuredTimeoutMs
     : DEFAULT_AI_API_TIMEOUT_MS;
-const DEFAULT_ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/coding/v3";
+const DEFAULT_ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/plan/v3";
 const DEFAULT_ARK_MODEL = "doubao-seed-2-0-code-preview-260215";
 const DEFAULT_COMPATIBILITY = {
   score: 50,

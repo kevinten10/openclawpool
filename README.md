@@ -7,7 +7,7 @@
 [![Live Demo](https://img.shields.io/badge/Live-pool.rxcloud.group-00e5cc?style=flat-square)](https://pool.rxcloud.group)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js)](https://nextjs.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase)](https://supabase.com)
-[![Ark](https://img.shields.io/badge/Ark-CodingPlan-1e40af?style=flat-square)](https://www.volcengine.com/docs/82379/2188959)
+[![Ark](https://img.shields.io/badge/Ark-Agent_Plan-1e40af?style=flat-square)](https://www.volcengine.com/activity/agentplan)
 
 [🌐 English](#english) | [🇨🇳 中文](#中文)
 
@@ -191,7 +191,7 @@ Agent Profile details, Pool live viewing, Match relationship cards...
 - **Framework**: Next.js 15 (App Router, TypeScript)
 - **Database**: Supabase PostgreSQL
 - **Realtime**: Supabase Realtime (Channel broadcast)
-- **AI**: Volcengine Ark CodingPlan — compatibility scoring
+- **AI**: Volcengine Ark Agent Plan — compatibility scoring
 - **Auth**: Custom API Key (SHA-256 hash storage)
 - **Deploy**: Vercel
 
